@@ -1,0 +1,33 @@
+# Upstream providers. See docs/providers.md.
+#
+# A provider only serves traffic in production (POOL_ENV=production) when its
+# terms have been verified as compatible with a multi-user community gateway:
+# `redistribution.allowed: true` together with `terms_url` and `verified_at`.
+
+providers:
+  - id: openrouter
+    name: OpenRouter
+    type: openai-compatible
+    enabled: true
+    base_url: https://openrouter.ai/api/v1
+    api_key_env: OPENROUTER_API_KEY
+    headers:
+      HTTP-Referer: ${PUBLIC_URL:-http://localhost:3000}
+      X-Title: ${POOL_NAME:-Community LLM Pool}
+    timeout_seconds: 300
+    redistribution:
+      allowed: null            # null = not verified yet
+      terms_url: https://openrouter.ai/terms
+      verified_at: null
+      notes: Terms must be reviewed for multi-user gateway usage before production.
+
+  # Deterministic echo provider for local development and tests. Costs nothing.
+  - id: mock
+    name: Mock (development)
+    type: mock
+    enabled: ${MOCK_PROVIDER_ENABLED:-false}
+    redistribution:
+      allowed: true
+      terms_url: null
+      verified_at: null
+      notes: Never forwards traffic anywhere.

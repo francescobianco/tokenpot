@@ -1,0 +1,77 @@
+# Economic and operational rules of this pool.
+#
+# Every change to this file changes how the pool behaves: propose it through a
+# pull request so the change is discussed and recorded in the git history.
+# See docs/economics.md and docs/allocation.md.
+
+pool:
+  name: ${POOL_NAME:-Community LLM Pool}
+  public_url: ${PUBLIC_URL:-http://localhost:3000}
+  api_url: ${API_URL:-http://localhost:3000/v1}
+
+membership:
+  # USD per month. Everyone contributes the same amount and gets the same rights.
+  monthly_contribution: 5
+  # github_sponsors | allowlist | open
+  #   github_sponsors: members are GitHub Sponsors of `sponsorable` at >= monthly_contribution
+  #   allowlist:       members are the GitHub logins listed in `allowlist` (private pools, testing)
+  #   open:            every logged-in GitHub user is a member (local development only)
+  verification: ${MEMBERSHIP_VERIFICATION:-github_sponsors}
+  sponsorable:
+    login: ${GITHUB_SPONSORABLE_LOGIN:-}
+    type: ${GITHUB_SPONSORABLE_TYPE:-user}   # user | organization
+  # When a sponsorship ends (or is not seen anymore by a sync) access continues
+  # for this many days. Payment/webhook glitches must never lock members out.
+  grace_days: 7
+  # On login, re-sync sponsors from GitHub if the last sync is older than this.
+  sync_max_age_minutes: 15
+  allowlist: []
+
+budget:
+  # How each contributed dollar is split. Must sum to 1.
+  provider_share: 0.85
+  infrastructure_share: 0.05
+  reserve_share: 0.10
+
+credits:
+  # Community Compute Units (CC) are an accounting unit, not a currency.
+  # 1 CC = 1/per_usd USD of actual provider cost.
+  per_usd: 1000
+
+allocation:
+  strategy: equal
+  # Individual allowances are multiplied by a factor that adapts month by month
+  # to the utilization of the previous month (statistical multiplexing).
+  # The pool-wide hard cap is never multiplied: the pool cannot overspend.
+  multiplier:
+    initial: 1.0
+    min: 1.0
+    max: 3.0
+    step: 0.10
+    low_utilization: 0.50    # previous month below this -> multiplier grows by `step`
+    high_utilization: 0.85   # previous month above this -> multiplier shrinks by `step`
+  overflow:
+    # Members who exhausted their allowance may keep using spare community
+    # capacity while total pool usage is below `pool_ceiling` of pool credits.
+    enabled: true
+    pool_ceiling: 0.90
+
+reserve:
+  # Target reserve size, in months of contributions.
+  target_months: 1
+  # Fraction of the reserve above target released into next month's provider budget.
+  excess_release: 0.5
+
+limits:
+  requests_per_minute: 30
+  requests_per_hour: 600
+  concurrent_requests: 5
+  # A single member may not consume more than this share of their monthly
+  # allowance within one hour (protects against leaked keys).
+  max_hourly_allowance_share: 0.25
+  max_request_body_bytes: 4000000
+
+infrastructure:
+  # Informational estimate shown on the transparency page for the open month.
+  # Actual costs are recorded in the ledger (`npm run pool -- ledger add ...`).
+  monthly_estimate_usd: 0

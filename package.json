@@ -1,0 +1,21 @@
+{
+  "name": "tokenpot",
+  "version": "0.1.0",
+  "description": "Community-funded LLM inference. One API, one $5 contribution, transparent economics.",
+  "license": "MIT",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "start:web": "node --disable-warning=ExperimentalWarning apps/web/main.js",
+    "start:gateway": "node --disable-warning=ExperimentalWarning apps/gateway/main.js",
+    "pool": "node --disable-warning=ExperimentalWarning scripts/pool.js",
+    "test": "node --disable-warning=ExperimentalWarning --test \"tests/**/*.test.js\""
+  },
+  "dependencies": {
+    "yaml": "^2.9.1"
+  }
+}

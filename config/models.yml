@@ -1,0 +1,43 @@
+# Models exposed by the gateway. See docs/providers.md.
+#
+# pricing: actual provider cost in USD per million tokens (drives accounting).
+# retail:  public list price a developer would pay buying individually
+#          (only used to compute the "community leverage" metric).
+# Prices below are ILLUSTRATIVE: verify them against the provider before launch.
+
+aliases:
+  community/fast: meta-llama/llama-3.3-70b-instruct
+  community/balanced: deepseek/deepseek-chat
+  community/smart: anthropic/claude-sonnet-4.5
+
+models:
+  - id: meta-llama/llama-3.3-70b-instruct
+    max_output_tokens: 8192
+    routes:
+      - provider: openrouter
+        upstream_model: meta-llama/llama-3.3-70b-instruct
+        pricing: { input_per_mtok: 0.13, output_per_mtok: 0.40 }
+    retail: { input_per_mtok: 0.59, output_per_mtok: 0.79 }
+
+  - id: deepseek/deepseek-chat
+    max_output_tokens: 8192
+    routes:
+      - provider: openrouter
+        upstream_model: deepseek/deepseek-chat
+        pricing: { input_per_mtok: 0.30, output_per_mtok: 0.85 }
+    retail: { input_per_mtok: 0.30, output_per_mtok: 0.85 }
+
+  - id: anthropic/claude-sonnet-4.5
+    max_output_tokens: 8192
+    routes:
+      - provider: openrouter
+        upstream_model: anthropic/claude-sonnet-4.5
+        pricing: { input_per_mtok: 3.00, output_per_mtok: 15.00 }
+    retail: { input_per_mtok: 3.00, output_per_mtok: 15.00 }
+
+  - id: dev/echo
+    max_output_tokens: 1024
+    routes:
+      - provider: mock
+        upstream_model: echo
+        pricing: { input_per_mtok: 1.00, output_per_mtok: 2.00 }
